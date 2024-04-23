@@ -1,26 +1,68 @@
 import SwiftUI
 import PhotosUI
 
+func check() {
+    print("调用了吗")
+}
+
 struct ContentView: View {
-    @State private var selectedItem: PhotosPickerItem?
+    @State private var showCamera = false
+    @State private var selectedImage: UIImage?
     @State var image: UIImage?
     var body: some View {
         VStack {
-            PhotosPicker("选择一张图片", selection: $selectedItem, matching: .images)
-                .onChange(of: selectedItem) { oldValue, newValue in
-                    Task {
-                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                            image = UIImage(data: data)
-                        }
-                        print("加载图片失败")
-                    }
-                }
-            if let image {
-                Image(uiImage: image)
+            if let selectedImage {
+                Image(uiImage: selectedImage)
                     .resizable()
                     .scaledToFit()
+                    .frame(width: 300, height: 300)
+            }
+            
+            Button("Open camera") {
+                self.showCamera.toggle()
+            }
+            .fullScreenCover(isPresented: self.$showCamera) {
+                accessCameraView(selectedImage: self.$selectedImage)
             }
         }
+    }
+}
+
+
+struct accessCameraView: UIViewControllerRepresentable {
+    
+    @Binding var selectedImage: UIImage?
+    @Environment(\.presentationMode) var isPresented
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let imagePicker = UIImagePickerController()
+        imagePicker.sourceType = .camera
+        imagePicker.allowsEditing = true
+        imagePicker.delegate = context.coordinator
+        return imagePicker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
+        
+    }
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(picker: self)
+    }
+}
+
+// Coordinator will help to preview the selected image in the View.
+class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+    var picker: accessCameraView
+    
+    init(picker: accessCameraView) {
+        self.picker = picker
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let selectedImage = info[.originalImage] as? UIImage else { return }
+        self.picker.selectedImage = selectedImage
+        self.picker.isPresented.wrappedValue.dismiss()
     }
 }
 
