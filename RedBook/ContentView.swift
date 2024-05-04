@@ -1,117 +1,122 @@
 import SwiftUI
 import PhotosUI
+import CoreML
+import Vision
+import UIKit
 
-func buffer(from image: UIImage) -> CVPixelBuffer? {
-  let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue, kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue] as CFDictionary
-  var pixelBuffer : CVPixelBuffer?
-  let status = CVPixelBufferCreate(kCFAllocatorDefault, Int(image.size.width), Int(image.size.height), kCVPixelFormatType_32ARGB, attrs, &pixelBuffer)
-  guard (status == kCVReturnSuccess) else {
-    return nil
-  }
-
-  CVPixelBufferLockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
-  let pixelData = CVPixelBufferGetBaseAddress(pixelBuffer!)
-
-  let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
-  let context = CGContext(data: pixelData, width: Int(image.size.width), height: Int(image.size.height), bitsPerComponent: 8, bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer!), space: rgbColorSpace, bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue)
-
-  context?.translateBy(x: 0, y: image.size.height)
-  context?.scaleBy(x: 1.0, y: -1.0)
-
-  UIGraphicsPushContext(context!)
-  image.draw(in: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
-  UIGraphicsPopContext()
-  CVPixelBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
-
-  return pixelBuffer
-}
+/// 屏幕的宽
+let kScreenWidth = UIScreen.main.bounds.size.width
+/// 屏幕的高
+let kScreenHeight = UIScreen.main.bounds.size.height
 
 struct ContentView: View {
     @State var showCamera = false
     @State var image: UIImage?
-    @State var txt = ""
-    @State var probs: Double = 0.0
-    let model = Animals10()
+    @State var shapesRects: [PositionModel] = []
+    var detectionTool: DetectionTool!
+    let version = "V0.0.2"
+
+    init() {
+        detectionTool = DetectionTool()
+    }
     var body: some View {
-        VStack {
-            if let image {
-                Image(uiImage: image)
+        ZStack {
+            if image != nil {
+                detectImage
+            } else {
+                Image(systemName: "photo")
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: 300, height: 300)
-                Text("种类：\(txt)")
-                Text("概率：\(probs)")
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 200)
+                    .foregroundColor(.blue)
+                    .opacity(0.6)
+                    .padding()
             }
-            Button("拍一张") {
-                self.showCamera.toggle()
+            VStack {
+                Spacer()
+                VStack {
+                    bottomArea
+                    Divider() // Adds a horizontal line below the text
+                    Text(" Audio Home iPhone AOI")
+                        .font(.caption) // Smaller font size
+                        .foregroundStyle(.gray)
+                    Text(version.uppercased())
+                        .font(.caption) // Smaller font size
+                }
+                .padding(.top, 10)
+                .background(.ultraThinMaterial)
             }
-            .fullScreenCover(isPresented: self.$showCamera) {
-                ImagePicker(sourceType: .camera) { image in
-                    self.image = image
-         
-                    if let cv = buffer(from: image) {
-                        let pResult = try? model.prediction(image: cv)
-                        txt = pResult?.classLabel ?? ""
-                        probs = pResult?.classLabelProbs[txt] ?? 0
+
+        }
+    }
+}
+// MARK: SUBVIEWS
+extension ContentView {
+    var detectImage: some View {
+        Image(uiImage: image!)
+            .resizable()
+            .frame(width: kScreenWidth, height: kScreenHeight)
+            .overlay {
+                ForEach(shapesRects, id: \.self.id) { item in
+                    HStack {
+                        Path(item.position)
+                            .stroke(.green)
+                            .overlay {
+                                Text("\(item.label):\(String(format: "%.3f", item.confidence))")
+                                    .foregroundStyle(.green)
+                                    .font(.system(size: 10))
+                                    .position(x: item.position.minX + 10, y: item.position.minY - 8)
+                            }
                     }
                 }
             }
+    }
+    var bottomArea: some View {
+        HStack(spacing: 20) {
+            Button(action: {
+                showCamera.toggle()
+            }, label: {
+                HStack {
+                    Image(systemName: "camera")
+                    Text("Camera")
+                }
+                .padding()
+                .foregroundStyle(.white)
+                .background(.blue)
+                .cornerRadius(30)
+            })
+            .fullScreenCover(isPresented: $showCamera) {
+                ImagePicker(sourceType: .camera, onImagePicked: dealWithImage)
+            }
+            Button(action: {
+                showCamera.toggle()
+            }, label: {
+                HStack {
+                    Image(systemName: "photo.stack")
+                    Text("Library")
+                }
+                .padding()
+                .foregroundStyle(.white)
+                .background(.blue)
+                .cornerRadius(30)
+            })
+            .fullScreenCover(isPresented: $showCamera) {
+                ImagePicker(sourceType: .photoLibrary, onImagePicked: dealWithImage)
+            }
+            
         }
-        .padding()
-        
     }
 }
 
-struct ImagePicker: UIViewControllerRepresentable {
-    @Environment(\.presentationMode) private var presentationMode
-    let sourceType: UIImagePickerController.SourceType
-    let onImagePicked: (UIImage) -> Void
-
-    func makeCoordinator() -> Coordinator {
-        return Coordinator(
-            presentationMode: presentationMode,
-            sourceType: sourceType,
-            onImagePicked: onImagePicked
-        )
-    }
-    
-    func makeUIViewController(context: Context) -> some UIViewController {
-        let picker = UIImagePickerController()
-        picker.sourceType = sourceType
-        picker.delegate = context.coordinator
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        
+// MARK: FUNCTIONS
+extension ContentView {
+    func dealWithImage(image: UIImage) {
+        self.image = image
+        detectionTool.detectImage(image: image) { targetArr in
+            self.shapesRects = targetArr
+        }
     }
 }
-
-class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-    @Binding private var presentationMode: PresentationMode
-    private let sourceType: UIImagePickerController.SourceType
-    private let onImagePicked: (UIImage) -> Void
-
-    init(
-        presentationMode: Binding<PresentationMode>,
-        sourceType: UIImagePickerController.SourceType,
-        onImagePicked: @escaping (UIImage) -> Void) {
-        _presentationMode = presentationMode
-        self.sourceType = sourceType
-        self.onImagePicked = onImagePicked
-    }
-
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let selectedImage = info[.originalImage] as? UIImage else { return }
-        onImagePicked(selectedImage)
-        presentationMode.dismiss()
-    }
-
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        presentationMode.dismiss()
-    }
-}
-
 
 #Preview {
     ContentView()
