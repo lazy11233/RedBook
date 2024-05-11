@@ -2,14 +2,12 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
-    @StateObject private var model = FrameHandle()
-    @State var showState = false
+    var isVideoDetect = true
     var body: some View {
-        ZStack {
-            Color.green.opacity(0.1)
-                .ignoresSafeArea()
-            HostedViewController()
-                .ignoresSafeArea()
+        if isVideoDetect {
+            VideoDetectionView()
+        } else {
+            ImageDetectionView()
         }
     }
 }
