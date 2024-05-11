@@ -15,6 +15,7 @@
 		254E72312BD559ED007B5E4A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254E72302BD559ED007B5E4A /* ContentView.swift */; };
 		254E72332BD559EE007B5E4A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254E72322BD559EE007B5E4A /* Assets.xcassets */; };
 		254E72362BD559EE007B5E4A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254E72352BD559EE007B5E4A /* Preview Assets.xcassets */; };
+		256269282BEE5F500073B932 /* Detector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256269272BEE5F500073B932 /* Detector.swift */; };
 		25F905542BD8028C0086D427 /* Animals10.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 25F905532BD8028C0086D427 /* Animals10.mlmodel */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 		254E72302BD559ED007B5E4A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		254E72322BD559EE007B5E4A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		254E72352BD559EE007B5E4A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		256269272BEE5F500073B932 /* Detector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Detector.swift; sourceTree = "<group>"; };
 		25F905532BD8028C0086D427 /* Animals10.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Animals10.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -66,6 +68,7 @@
 				252825082BED0CAF00EB0F1D /* FrameView.swift */,
 				2528250A2BED0DE700EB0F1D /* FrameHandle.swift */,
 				2528250C2BED235C00EB0F1D /* ViewController.swift */,
+				256269272BEE5F500073B932 /* Detector.swift */,
 				250FA1002BDD312900630DDC /* glue_detection.mlmodel */,
 				25F905532BD8028C0086D427 /* Animals10.mlmodel */,
 				254E72322BD559EE007B5E4A /* Assets.xcassets */,
@@ -155,6 +158,7 @@
 				254E72312BD559ED007B5E4A /* ContentView.swift in Sources */,
 				2528250B2BED0DE700EB0F1D /* FrameHandle.swift in Sources */,
 				250FA1012BDD312900630DDC /* glue_detection.mlmodel in Sources */,
+				256269282BEE5F500073B932 /* Detector.swift in Sources */,
 				254E722F2BD559ED007B5E4A /* RedBookApp.swift in Sources */,
 				2528250D2BED235C00EB0F1D /* ViewController.swift in Sources */,
 				252825092BED0CAF00EB0F1D /* FrameView.swift in Sources */,

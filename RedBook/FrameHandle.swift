@@ -20,7 +20,6 @@ class FrameHandle: NSObject, ObservableObject {
     func checkPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            print("有权限")
             permissionGranted = true
         case .notDetermined:
             requestPermission()
@@ -39,7 +38,10 @@ class FrameHandle: NSObject, ObservableObject {
         let videoOutput = AVCaptureVideoDataOutput()
 
         guard permissionGranted else { return }
-        guard let videoDevice = AVCaptureDevice.default(.builtInDualWideCamera, for: .video, position: .back) else { return }
+        guard let videoDevice = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices.first else {
+            print("frameHandle 相机获取失败")
+            return
+        }
         guard let videoDeviceInput = try? AVCaptureDeviceInput(device: videoDevice) else { return }
         guard captureSession.canAddInput(videoDeviceInput) else { return }
         captureSession.addInput(videoDeviceInput)
