@@ -3,30 +3,37 @@ import Vision
 
 class CaptureDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, ObservableObject {
     @Published var peopleCount: Int = 0
-    @Published var detectedRectangles: [CGRect] = []
+    @Published var detectedPoints: [TargetPoint] = []
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             print("Could not get image buffer.")
             return
         }
-        let request = VNDetectHumanRectanglesRequest { request, error in
-            if let error = error {
+        guard let mlModle = try? glue_detection(configuration: .init()).model else {
+            print("Failed to load model.")
+            return
+        }
+        guard let visionModel = try? VNCoreMLModel(for: mlModle) else {
+            return
+        }
+        let request = VNCoreMLRequest(model: visionModel) { request, error in
+            if error != nil {
                 print("Could not get request from the image.")
                 return
             }
-            guard let observations = request.results as? [VNHumanObservation] else {
+            guard let observations = request.results as? [VNRecognizedObjectObservation] else {
                 return
             }
             DispatchQueue.main.async { [self] in
-                self.peopleCount = observations.count
-                self.detectedRectangles = observations.map {
-                    $0.boundingBox
-                }
-                print("Count: \(self.peopleCount)")
+                self.detectedPoints = observations
+                    .filter { $0.confidence > 0.3 }
+                    .map {
+                        TargetPoint(label: $0.labels.first?.identifier ?? "unknown", position: $0.boundingBox, confidence: $0.confidence)
+                    }
             }
         }
-        request.upperBodyOnly = false
+
         do {
             try VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:]).perform([request])
         } catch {

@@ -26,43 +26,36 @@ struct ImageDetectionView: View {
             .font(.largeTitle)
             .foregroundColor(.blue)
             
-            Rectangle()
-                .strokeBorder()
-                .foregroundColor(.yellow)
-                .overlay(
-                    Group {
-                        if uiImage != nil {
-                            Image(uiImage: uiImage!)
-                                .resizable()
-                                .scaledToFit()
-                                .overlay (
-                                    ForEach(detectedRectangles, id: \.self.id) { item in
-                                        GeometryReader { geometry in
-                                            HStack {
-                                                Rectangle()
-                                                    .path(in: CGRect(
-                                                        x: item.position.minX * geometry.size.width,
-                                                        y: item.position.minY * geometry.size.height + 10,
-                                                        width: item.position.width * geometry.size.width,
-                                                        height: item.position.height * geometry.size.height)
-                                                    )
-                                                    .stroke(.green)
-                                                    .overlay (
-                                                        Text("\(item.label):\(String(format: "%.3f", item.confidence))")
-                                                            .foregroundStyle(.green)
-                                                            .font(.system(size: 10))
-                                                            .position(
-                                                                x: item.position.minX * geometry.size.width,
-                                                                y: item.position.minY * geometry.size.height + 5
-                                                            )
-                                                    )
-                                            }
-                                        }
-                                    }
-                                )
+            if uiImage != nil {
+                Image(uiImage: uiImage!)
+                    .resizable()
+                    .scaledToFit()
+                    .overlay (
+                        ForEach(detectedRectangles, id: \.self.id) { item in
+                            GeometryReader { geometry in
+                                HStack {
+                                    Rectangle()
+                                        .path(in: CGRect(
+                                            x: item.position.minX * geometry.size.width,
+                                            y: item.position.minY * geometry.size.height + 10,
+                                            width: item.position.width * geometry.size.width,
+                                            height: item.position.height * geometry.size.height)
+                                        )
+                                        .stroke(.green)
+                                        .overlay (
+                                            Text("\(item.label):\(String(format: "%.3f", item.confidence))")
+                                                .foregroundStyle(.green)
+                                                .font(.system(size: 10))
+                                                .position(
+                                                    x: item.position.minX * geometry.size.width,
+                                                    y: item.position.minY * geometry.size.height + 5
+                                                )
+                                        )
+                                }
+                            }
                         }
-                    }
-                )
+                    )
+            }
         }
             .sheet(isPresented: $isPresenting){
                 ImagePicker(uiImage: $uiImage, isPresenting: $isPresenting, sourceType: $sourceType)

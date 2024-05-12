@@ -9,22 +9,31 @@ struct VideoDetectionView: View {
         ZStack {
             VideoPreviewView(session: captureSession)
                 .overlay(
-                    ForEach(captrueDelegate.detectedRectangles.indices, id: \.self) { index in
+                    ForEach(captrueDelegate.detectedPoints, id: \.self.id) { item in
                         GeometryReader { geometry in
                             Rectangle()
                                 .path(in: CGRect(
-                                    x: captrueDelegate.detectedRectangles[index].minY * geometry.size.height,
-                                    y: captrueDelegate.detectedRectangles[index].minX * geometry.size.width,
-                                    width: captrueDelegate.detectedRectangles[index].height * geometry.size.height,
-                                    height: captrueDelegate.detectedRectangles[index].width * geometry.size.width
-                                ))
-                                .stroke(Color.red, lineWidth: 1)
+                                    x: item.position.minX * geometry.size.width,
+                                    y: item.position.minY * geometry.size.height + 10,
+                                    width: item.position.width * geometry.size.width,
+                                    height: item.position.height * geometry.size.height)
+                                )
+                                .stroke(.green)
+                                .overlay (
+                                    Text("\(item.label):\(String(format: "%.3f", item.confidence))")
+                                        .foregroundStyle(.green)
+                                        .font(.system(size: 10))
+                                        .position(
+                                            x: item.position.minX * geometry.size.width,
+                                            y: item.position.minY * geometry.size.height + 5
+                                        )
+                                )
                         }
                     }
                 )
         }
         .aspectRatio(contentMode: .fit)
-        Text("Human count: \(captrueDelegate.peopleCount)")
+        Text("Detect count: \(captrueDelegate.peopleCount)")
             .font(.title)
             .padding()
             .onAppear {

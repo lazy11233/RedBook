@@ -2,7 +2,7 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
-    var isVideoDetect = false
+    var isVideoDetect = true
     var body: some View {
         if isVideoDetect {
             VideoDetectionView()
