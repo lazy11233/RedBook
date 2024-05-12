@@ -2,73 +2,111 @@ import SwiftUI
 import Vision
 
 struct ImageDetectionView: View {
-    var image: String = "peoples"
-    @State private var peopleCount: Int = 0
-    @State private var detectedRectangles: [CGRect] = []
-    @State private var detectWholeBody = false
+    @State var isPresenting: Bool = false
+    @State var uiImage: UIImage?
+    @State var sourceType: UIImagePickerController.SourceType = .camera
+
+    @State private var objectCount: Int = 0
+    @State private var detectedRectangles: [TargetPoint] = []
 
     var body: some View {
-        VStack {
-            ZStack {
-                Image(uiImage: UIImage(named: image)!)
-                    .resizable()
-                    .scaledToFit()
-                    .overlay (
-                        ForEach(detectedRectangles.indices, id: \.self) { index in
-                            GeometryReader { geometry in
-                                Rectangle()
-                                    .path(in: CGRect(
-                                        x: detectedRectangles[index].minX * geometry.size.width,
-                                        y: detectedRectangles[index].minY * geometry.size.height,
-                                        width: detectedRectangles[index].width * geometry.size.width,
-                                        height: detectedRectangles[index].height * geometry.size.height)
-                                    )
-                                    .stroke(Color.red, lineWidth: 1)
-                            }
-                        }
-                    )
-                VStack {
-                    Toggle("Detect Whole Human", isOn: $detectWholeBody)
-                        .padding()
-                        .onChange(of: detectWholeBody) { _ in
-                            countPeople()
-                        }
-                }
-                Text("People count: \(peopleCount)")
-                    .font(.title)
-                    .padding()
+        VStack{
+            HStack {
+                Image(systemName: "photo")
+                    .onTapGesture {
+                        isPresenting = true
+                        sourceType = .photoLibrary
+                    }
+                Image(systemName: "camera")
+                    .onTapGesture {
+                        isPresenting = true
+                        sourceType = .camera
+                    }
             }
-        }.onAppear {
-            countPeople()
+            .font(.largeTitle)
+            .foregroundColor(.blue)
+            
+            Rectangle()
+                .strokeBorder()
+                .foregroundColor(.yellow)
+                .overlay(
+                    Group {
+                        if uiImage != nil {
+                            Image(uiImage: uiImage!)
+                                .resizable()
+                                .scaledToFit()
+                                .overlay (
+                                    ForEach(detectedRectangles, id: \.self.id) { item in
+                                        GeometryReader { geometry in
+                                            HStack {
+                                                Rectangle()
+                                                    .path(in: CGRect(
+                                                        x: item.position.minX * geometry.size.width,
+                                                        y: item.position.minY * geometry.size.height + 10,
+                                                        width: item.position.width * geometry.size.width,
+                                                        height: item.position.height * geometry.size.height)
+                                                    )
+                                                    .stroke(.green)
+                                                    .overlay (
+                                                        Text("\(item.label):\(String(format: "%.3f", item.confidence))")
+                                                            .foregroundStyle(.green)
+                                                            .font(.system(size: 10))
+                                                            .position(
+                                                                x: item.position.minX * geometry.size.width,
+                                                                y: item.position.minY * geometry.size.height + 5
+                                                            )
+                                                    )
+                                            }
+                                        }
+                                    }
+                                )
+                        }
+                    }
+                )
         }
+            .sheet(isPresented: $isPresenting){
+                ImagePicker(uiImage: $uiImage, isPresenting: $isPresenting, sourceType: $sourceType)
+                    .onDisappear {
+                        if uiImage != nil {
+                            detect(uiImage: uiImage!)
+                        }
+                    }
+            }
+            .padding()
     }
     
-    func countPeople() {
-        guard let uiImage = UIImage(named: image), let ciImage = CIImage(image: uiImage) else {
+    func detect(uiImage: UIImage) {
+        guard let ciImage = CIImage(image: uiImage) else {
             print("The image not found")
             return
         }
-        let request = VNDetectHumanRectanglesRequest { request, error in
+        guard let mlModle = try? glue_detection(configuration: .init()).model else {
+            print("Failed to load model.")
+            return
+        }
+        guard let visionModel = try? VNCoreMLModel(for: mlModle) else {
+            return
+        }
+        let request = VNCoreMLRequest(model: visionModel) { request, error in
             if let error = error {
                 print("Error: \(error)")
                 return
             }
-            guard let observations = request.results as? [VNHumanObservation] else {
+            guard let observations = request.results as? [VNRecognizedObjectObservation] else {
                 return
             }
             DispatchQueue.main.async {
-                peopleCount = observations.count
-                detectedRectangles = observations.map {
-                    $0.boundingBox
-                }
+                detectedRectangles = observations
+                    .filter { $0.confidence > 0.3 }
+                    .map {
+                        TargetPoint(label: $0.labels.first?.identifier ?? "unknown", position: $0.boundingBox, confidence: $0.confidence)
+                    }
+                objectCount = detectedRectangles.count
             }
         }
-        
         #if targetEnvironment(simulator)
         request.usesCPUOnly = true
         #endif
-        
-        request.upperBodyOnly = detectWholeBody
         let handler = VNImageRequestHandler(ciImage: ciImage)
         do {
             try handler.perform([request])
