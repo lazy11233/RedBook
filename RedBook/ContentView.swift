@@ -5,7 +5,8 @@ struct ContentView: View {
     var isVideoDetect = true
     var body: some View {
         if isVideoDetect {
-            VideoDetectionView()
+            HostedViewController()
+                .ignoresSafeArea()
         } else {
             ImageDetectionView()
         }

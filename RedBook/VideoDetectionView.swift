@@ -3,7 +3,7 @@ import AVFoundation
 
 struct VideoDetectionView: View {
     let captureSession = AVCaptureSession()
-    let captureSessionQueue = DispatchQueue(label: "captureSessionQueue")
+    let captureSessionQueue = DispatchQueue(label: "captureSessionQueue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
     @ObservedObject var captrueDelegate = CaptureDelegate()
     var body: some View {
         ZStack {
@@ -62,6 +62,8 @@ struct VideoDetectionView: View {
         }
         if captureSession.canAddOutput(videoOutput) {
             captureSession.addOutput(videoOutput)
+            videoOutput.alwaysDiscardsLateVideoFrames = true
+            videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)]
         }
         captureSession.commitConfiguration()
         DispatchQueue.global().async {
@@ -77,7 +79,7 @@ struct VideoPreviewView: UIViewRepresentable {
         let view = UIView(frame: .zero)
         // 相机捕获内容的预览层
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
+        previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         view.layer.addSublayer(previewLayer)
         return view
     }

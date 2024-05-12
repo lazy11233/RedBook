@@ -17,6 +17,8 @@
 		25AB714F2BEFD64400A68A19 /* ImageDetectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25AB714E2BEFD64400A68A19 /* ImageDetectionView.swift */; };
 		25D9407D2BF0AC50006E809F /* TargetPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D9407C2BF0AC50006E809F /* TargetPoint.swift */; };
 		25D9407F2BF0B3E6006E809F /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D9407E2BF0B3E6006E809F /* ImagePicker.swift */; };
+		25D940812BF0FCBB006E809F /* DetectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D940802BF0FCBB006E809F /* DetectViewController.swift */; };
+		25D940832BF0FE82006E809F /* VisionObjectRecognitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D940822BF0FE82006E809F /* VisionObjectRecognitionViewController.swift */; };
 		25F905542BD8028C0086D427 /* Animals10.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 25F905532BD8028C0086D427 /* Animals10.mlmodel */; };
 /* End PBXBuildFile section */
 
@@ -32,6 +34,8 @@
 		25AB714E2BEFD64400A68A19 /* ImageDetectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetectionView.swift; sourceTree = "<group>"; };
 		25D9407C2BF0AC50006E809F /* TargetPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetPoint.swift; sourceTree = "<group>"; };
 		25D9407E2BF0B3E6006E809F /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		25D940802BF0FCBB006E809F /* DetectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectViewController.swift; sourceTree = "<group>"; };
+		25D940822BF0FE82006E809F /* VisionObjectRecognitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionObjectRecognitionViewController.swift; sourceTree = "<group>"; };
 		25F905532BD8028C0086D427 /* Animals10.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Animals10.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -71,6 +75,8 @@
 				25AB714C2BEFD54500A68A19 /* VideoDetectionView.swift */,
 				25AB714E2BEFD64400A68A19 /* ImageDetectionView.swift */,
 				25D9407E2BF0B3E6006E809F /* ImagePicker.swift */,
+				25D940802BF0FCBB006E809F /* DetectViewController.swift */,
+				25D940822BF0FE82006E809F /* VisionObjectRecognitionViewController.swift */,
 				25D9407C2BF0AC50006E809F /* TargetPoint.swift */,
 				250FA1002BDD312900630DDC /* glue_detection.mlmodel */,
 				25F905532BD8028C0086D427 /* Animals10.mlmodel */,
@@ -158,6 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25D940832BF0FE82006E809F /* VisionObjectRecognitionViewController.swift in Sources */,
 				25AB714D2BEFD54500A68A19 /* VideoDetectionView.swift in Sources */,
 				254E72312BD559ED007B5E4A /* ContentView.swift in Sources */,
 				250FA1012BDD312900630DDC /* glue_detection.mlmodel in Sources */,
@@ -165,6 +172,7 @@
 				254E722F2BD559ED007B5E4A /* RedBookApp.swift in Sources */,
 				25AB714B2BEFC56C00A68A19 /* CaptureDelegate.swift in Sources */,
 				25D9407D2BF0AC50006E809F /* TargetPoint.swift in Sources */,
+				25D940812BF0FCBB006E809F /* DetectViewController.swift in Sources */,
 				25F905542BD8028C0086D427 /* Animals10.mlmodel in Sources */,
 				25AB714F2BEFD64400A68A19 /* ImageDetectionView.swift in Sources */,
 			);
