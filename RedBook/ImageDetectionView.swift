@@ -5,6 +5,7 @@ struct ImageDetectionView: View {
     @State var isPresenting: Bool = false
     @State var uiImage: UIImage?
     @State var sourceType: UIImagePickerController.SourceType = .camera
+    var detectionTool = ImageDetectTool()
 
     @State private var objectCount: Int = 0
     @State private var detectedRectangles: [TargetPoint] = []
@@ -30,25 +31,26 @@ struct ImageDetectionView: View {
                 Image(uiImage: uiImage!)
                     .resizable()
                     .scaledToFit()
+                    .border(Color.red)
                     .overlay (
                         ForEach(detectedRectangles, id: \.self.id) { item in
                             GeometryReader { geometry in
                                 HStack {
                                     Rectangle()
                                         .path(in: CGRect(
-                                            x: item.position.minX * geometry.size.width,
-                                            y: item.position.minY * geometry.size.height + 10,
-                                            width: item.position.width * geometry.size.width,
-                                            height: item.position.height * geometry.size.height)
+                                            x: item.position.minY * geometry.size.width,
+                                            y: item.position.minX * geometry.size.height,
+                                            width: item.position.width * geometry.size.height,
+                                            height: item.position.height * geometry.size.width)
                                         )
                                         .stroke(.green)
                                         .overlay (
-                                            Text("\(item.label):\(String(format: "%.3f", item.confidence))")
+                                            Text("\(item.label):\(String(format: "%.2f", item.confidence))")
                                                 .foregroundStyle(.green)
                                                 .font(.system(size: 10))
                                                 .position(
-                                                    x: item.position.minX * geometry.size.width,
-                                                    y: item.position.minY * geometry.size.height + 5
+                                                    x: item.position.minY * geometry.size.width,
+                                                    y: item.position.minX * geometry.size.height - 5
                                                 )
                                         )
                                 }
@@ -61,51 +63,18 @@ struct ImageDetectionView: View {
                 ImagePicker(uiImage: $uiImage, isPresenting: $isPresenting, sourceType: $sourceType)
                     .onDisappear {
                         if uiImage != nil {
-                            detect(uiImage: uiImage!)
+                            detectionTool.detectImage(image: uiImage!) { observations in
+                                self.detectedRectangles = observations.map({ item in
+                                    return TargetPoint(label: item.labels.first?.identifier ?? "", position: item.boundingBox, confidence: item.confidence)
+                                })
+                            }
                         }
                     }
             }
             .padding()
     }
-    
-    func detect(uiImage: UIImage) {
-        guard let ciImage = CIImage(image: uiImage) else {
-            print("The image not found")
-            return
-        }
-        guard let mlModle = try? glue_detection(configuration: .init()).model else {
-            print("Failed to load model.")
-            return
-        }
-        guard let visionModel = try? VNCoreMLModel(for: mlModle) else {
-            return
-        }
-        let request = VNCoreMLRequest(model: visionModel) { request, error in
-            if let error = error {
-                print("Error: \(error)")
-                return
-            }
-            guard let observations = request.results as? [VNRecognizedObjectObservation] else {
-                return
-            }
-            DispatchQueue.main.async {
-                detectedRectangles = observations
-                    .filter { $0.confidence > 0.3 }
-                    .map {
-                        TargetPoint(label: $0.labels.first?.identifier ?? "unknown", position: $0.boundingBox, confidence: $0.confidence)
-                    }
-                objectCount = detectedRectangles.count
-            }
-        }
-        #if targetEnvironment(simulator)
-        request.usesCPUOnly = true
-        #endif
-        let handler = VNImageRequestHandler(ciImage: ciImage)
-        do {
-            try handler.perform([request])
-        } catch {
-            print("Error: \(error)")
-        }
+    func callback(observations: [VNRecognizedObjectObservation]) -> Void {
+        
     }
 }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		250FA1012BDD312900630DDC /* glue_detection.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 250FA1002BDD312900630DDC /* glue_detection.mlmodel */; };
+		25210D172BF4F8B5001FC61F /* ImageDetectTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25210D162BF4F8B5001FC61F /* ImageDetectTool.swift */; };
 		254E722F2BD559ED007B5E4A /* RedBookApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254E722E2BD559ED007B5E4A /* RedBookApp.swift */; };
 		254E72312BD559ED007B5E4A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 254E72302BD559ED007B5E4A /* ContentView.swift */; };
 		254E72332BD559EE007B5E4A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 254E72322BD559EE007B5E4A /* Assets.xcassets */; };
@@ -24,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		250FA1002BDD312900630DDC /* glue_detection.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = glue_detection.mlmodel; sourceTree = "<group>"; };
+		25210D162BF4F8B5001FC61F /* ImageDetectTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetectTool.swift; sourceTree = "<group>"; };
 		254E722B2BD559ED007B5E4A /* RedBook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RedBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		254E722E2BD559ED007B5E4A /* RedBookApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedBookApp.swift; sourceTree = "<group>"; };
 		254E72302BD559ED007B5E4A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				25AB714A2BEFC56C00A68A19 /* CaptureDelegate.swift */,
 				25AB714C2BEFD54500A68A19 /* VideoDetectionView.swift */,
 				25AB714E2BEFD64400A68A19 /* ImageDetectionView.swift */,
+				25210D162BF4F8B5001FC61F /* ImageDetectTool.swift */,
 				25D9407E2BF0B3E6006E809F /* ImagePicker.swift */,
 				25D940802BF0FCBB006E809F /* DetectViewController.swift */,
 				25D940822BF0FE82006E809F /* VisionObjectRecognitionViewController.swift */,
@@ -170,6 +173,7 @@
 				250FA1012BDD312900630DDC /* glue_detection.mlmodel in Sources */,
 				25D9407F2BF0B3E6006E809F /* ImagePicker.swift in Sources */,
 				254E722F2BD559ED007B5E4A /* RedBookApp.swift in Sources */,
+				25210D172BF4F8B5001FC61F /* ImageDetectTool.swift in Sources */,
 				25AB714B2BEFC56C00A68A19 /* CaptureDelegate.swift in Sources */,
 				25D9407D2BF0AC50006E809F /* TargetPoint.swift in Sources */,
 				25D940812BF0FCBB006E809F /* DetectViewController.swift in Sources */,
