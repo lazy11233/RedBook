@@ -24,7 +24,7 @@ struct ImageDetectionView: View {
                                     Rectangle()
                                         .path(in: CGRect(
                                             x: sourceType == .camera ? item.position.minY * geometry.size.width : item.position.minX * geometry.size.width,
-                                            y: sourceType == .camera ? item.position.minX * geometry.size.height : item.position.minY * geometry.size.height,
+                                            y: sourceType == .camera ? item.position.minX * geometry.size.height : (1 - item.position.minY) * geometry.size.height - geometry.size.height * item.position.height,
                                             width: sourceType == .camera ? item.position.width * geometry.size.height : item.position.width * geometry.size.width,
                                             height: sourceType == .camera ? item.position.height * geometry.size.width : item.position.height * geometry.size.height
                                         ))
@@ -57,7 +57,7 @@ struct ImageDetectionView: View {
                 }
         }
         .padding()
-        Spacer()
+
         HStack {
             Button {
                 isPresenting = true
@@ -66,7 +66,7 @@ struct ImageDetectionView: View {
                 Image(systemName: "photo")
                     .backgroundStyle(.blue)
             }
-             
+            
             Button {
                 isPresenting = true
                 sourceType = .camera
@@ -78,10 +78,10 @@ struct ImageDetectionView: View {
         .foregroundColor(.blue)
         Divider()
         Text(" Audio Home iPhone AOI")
-                                .font(.caption) // Smaller font size
-                                .foregroundStyle(.gray)
-                            Text(version.uppercased())
-                                .font(.caption) // Smaller font size
+            .font(.caption) // Smaller font size
+            .foregroundStyle(.gray)
+        Text(version.uppercased())
+            .font(.caption) // Smaller font size
     }
 }
 
